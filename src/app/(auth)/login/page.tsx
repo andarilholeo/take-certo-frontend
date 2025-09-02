@@ -1,4 +1,5 @@
 import { LoginForm } from '@/components/auth/LoginForm';
+import { ConnectionStatus } from '@/components/debug/ConnectionStatus';
 import Image from 'next/image';
 
 export default function LoginPage() {
@@ -18,11 +19,16 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <div className="w-full max-w-md mx-auto">
-          <h1 className="text-white text-3xl font-bold mb-2">Vamos jogar um jogo...</h1>
-          <p className="text-gray-400 mb-8">Faça sua conta</p>
-          
-          <LoginForm />
+        <div className="w-full max-w-md mx-auto space-y-8">
+          <div>
+            <h1 className="text-white text-3xl font-bold mb-2">Vamos jogar um jogo...</h1>
+            <p className="text-gray-400 mb-8">Faça sua conta</p>
+
+            <LoginForm />
+          </div>
+
+          {/* Debug Tools - remover em produção */}
+          <ConnectionStatus />
         </div>
       </div>
     </div>

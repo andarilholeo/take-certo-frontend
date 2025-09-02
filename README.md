@@ -66,9 +66,10 @@ Abra [http://localhost:3000](http://localhost:3000) no seu navegador.
 ```
 src/
 ├── app/                    # App Router do Next.js
-│   ├── exemplo/           # Página de exemplo dos componentes
+│   ├── (auth)/            # Páginas de autenticação
+│   ├── dashboard/         # Dashboard principal
 │   ├── globals.css        # Estilos globais otimizados para mobile
-│   ├── layout.tsx         # Layout principal com navegação
+│   ├── layout.tsx         # Layout principal
 │   └── page.tsx           # Página inicial
 ├── components/
 │   ├── layout/
@@ -110,8 +111,9 @@ Navegação responsiva:
 ## 🎯 Páginas
 
 - **/** - Página inicial com apresentação do projeto
-- **/exemplo** - Demonstração de todos os componentes
-- **/sobre** - Informações sobre o projeto (em desenvolvimento)
+- **/login** - Página de autenticação
+- **/register** - Página de registro
+- **/dashboard** - Dashboard principal com salas do usuário
 
 ## 📱 Testando em Dispositivos Móveis
 
@@ -127,10 +129,54 @@ Navegação responsiva:
 ## 🔧 Scripts Disponíveis
 
 ```bash
-npm run dev      # Servidor de desenvolvimento
-npm run build    # Build de produção
-npm run start    # Servidor de produção
-npm run lint     # Verificação de código
+npm run dev           # Servidor de desenvolvimento
+npm run build         # Build de produção
+npm run start         # Servidor de produção
+npm run lint          # Verificação de código
+npm run check-backend # Verificar conectividade com backend
+```
+
+## 🚨 Troubleshooting
+
+### Erro: "Failed to fetch" ou "Resposta inválida do servidor"
+
+#### 1. **Verificar Backend**
+```bash
+# Verificar se o backend está rodando
+npm run check-backend
+```
+
+#### 2. **Verificar Configuração**
+No arquivo `.env.local`:
+```env
+NEXT_PUBLIC_API_BASE_URL=http://localhost:5134/api
+```
+
+#### 3. **Debug Tools**
+Na página de login (`/login`), há ferramentas de debug que mostram:
+- Status da conexão com o backend
+- Logs detalhados das requisições
+- Testes de conectividade
+
+#### 4. **Estrutura Esperada da Resposta**
+O frontend espera que o backend retorne no login:
+```json
+{
+  "token": "jwt-token-aqui",
+  "user": {
+    "id": "user-id",
+    "username": "nome-usuario",
+    "email": "email@exemplo.com"
+  }
+}
+```
+
+#### 5. **Verificação Manual**
+```bash
+# Testar endpoint diretamente
+curl -X POST http://localhost:5134/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"seu@email.com","password":"suasenha"}'
 ```
 
 ## 📚 Próximos Passos

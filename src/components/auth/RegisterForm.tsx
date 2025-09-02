@@ -4,31 +4,40 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useAuth } from '@/contexts/AuthContext';
-import Link from 'next/link';
 
-export function LoginForm() {
+export function RegisterForm() {
   const [formData, setFormData] = useState({
+    username: '',
     email: '',
-    password: ''
+    password: '',
+    confirmPassword: ''
   });
 
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  const { login, isLoading } = useAuth();
+  const { register, isLoading } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
     try {
-      if (!formData.email || !formData.password) {
-        throw new Error('Email e senha são obrigatórios');
+      if (!formData.username || !formData.email || !formData.password) {
+        throw new Error('Todos os campos são obrigatórios');
       }
 
-      await login(formData.email, formData.password);
+      if (formData.password !== formData.confirmPassword) {
+        throw new Error('As senhas não coincidem');
+      }
 
+      if (formData.password.length < 6) {
+        throw new Error('A senha deve ter pelo menos 6 caracteres');
+      }
+
+      await register(formData.username, formData.email, formData.password);
+      
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Erro ao fazer login');
+      setError(error instanceof Error ? error.message : 'Erro ao criar conta');
     }
   };
 
@@ -39,6 +48,21 @@ export function LoginForm() {
           <p className="text-red-400 text-sm">{error}</p>
         </div>
       )}
+
+      <div>
+        <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
+          Nome de Usuário
+        </label>
+        <Input
+          id="username"
+          type="text"
+          placeholder="Seu nome de usuário"
+          value={formData.username}
+          onChange={(e) => setFormData(prev => ({ ...prev, username: e.target.value }))}
+          className="bg-slate-800 border-slate-700 text-white placeholder-gray-400"
+          required
+        />
+      </div>
 
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
@@ -79,10 +103,31 @@ export function LoginForm() {
         </div>
       </div>
 
-      <div className="text-right">
-        <Link href="/forgot-password" className="text-sm text-gray-400 hover:text-gray-300">
-          Esqueceu a senha?
-        </Link>
+      <div>
+        <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-2">
+          Confirmar Senha
+        </label>
+        <Input
+          id="confirmPassword"
+          type="password"
+          placeholder="••••••••"
+          value={formData.confirmPassword}
+          onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+          className="bg-slate-800 border-slate-700 text-white placeholder-gray-400"
+          required
+        />
+      </div>
+
+      <div className="text-sm text-gray-400">
+        <p>Ao criar uma conta, você concorda com nossos:</p>
+        <div className="flex space-x-4 mt-1">
+          <a href="/terms" className="text-red-500 hover:text-red-400">
+            Termos de Uso
+          </a>
+          <a href="/privacy" className="text-red-500 hover:text-red-400">
+            Política de Privacidade
+          </a>
+        </div>
       </div>
 
       <Button
@@ -90,15 +135,8 @@ export function LoginForm() {
         disabled={isLoading}
         className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3"
       >
-        {isLoading ? 'Entrando...' : 'Entrar'}
+        {isLoading ? 'Criando conta...' : 'Criar Conta'}
       </Button>
-
-      <div className="text-center">
-        <span className="text-gray-400">Não tem uma conta? </span>
-        <Link href="/register" className="text-red-500 hover:text-red-400 font-medium">
-          Criar conta
-        </Link>
-      </div>
     </form>
   );
 }
