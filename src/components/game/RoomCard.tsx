@@ -3,19 +3,21 @@
 import { Room } from '@/types/game';
 import { Button } from '@/components/ui/Button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/Card';
+import { getRoomTypeText, isRoomParticipant, isRoomOwner } from '@/lib/roomUtils';
 
 interface RoomCardProps {
   room: Room;
   onJoin: (roomId: number) => void;
   onLeave: (roomId: number) => void;
   onManageMovies: (roomId: number) => void;
+  onPlayGame: (roomId: number) => void;
   currentUserId: number;
 }
 
-export function RoomCard({ room, onJoin, onLeave, onManageMovies, currentUserId }: RoomCardProps) {
-  const isOwner = room.createdBy.id === currentUserId;
-  const isParticipant = room.players.some(p => p.player.id === currentUserId);
-  
+export function RoomCard({ room, onJoin, onLeave, onManageMovies, onPlayGame, currentUserId }: RoomCardProps) {
+  const isOwner = isRoomOwner(room, currentUserId);
+  const isParticipant = isRoomParticipant(room, currentUserId);
+
   const getStatusColor = (status: number) => {
     switch (status) {
       case 0:
@@ -74,7 +76,6 @@ export function RoomCard({ room, onJoin, onLeave, onManageMovies, currentUserId 
       </CardHeader>
 
       <CardContent className="space-y-3">
-        {/* Room Info */}
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <span className="text-gray-400">Jogadores:</span>
@@ -90,8 +91,13 @@ export function RoomCard({ room, onJoin, onLeave, onManageMovies, currentUserId 
           </div>
         </div>
 
-        {/* Game Settings */}
         <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <span className="text-gray-400">Tipo:</span>
+            <span className="text-white ml-1">
+              {getRoomTypeText(room)}
+            </span>
+          </div>
           <div>
             <span className="text-gray-400">Filmes/Jogador:</span>
             <span className="text-white ml-1">{room.moviesPerPlayer}</span>
@@ -102,7 +108,6 @@ export function RoomCard({ room, onJoin, onLeave, onManageMovies, currentUserId 
           </div>
         </div>
 
-        {/* Dates */}
         <div className="text-sm">
           <div className="mb-1">
             <span className="text-gray-400">Criada em:</span>
@@ -122,7 +127,6 @@ export function RoomCard({ room, onJoin, onLeave, onManageMovies, currentUserId 
           )}
         </div>
 
-        {/* Players Preview */}
         {room.players.length > 0 && (
           <div>
             <span className="text-gray-400 text-sm">Jogadores:</span>
@@ -157,7 +161,7 @@ export function RoomCard({ room, onJoin, onLeave, onManageMovies, currentUserId 
         <div className="text-xs text-gray-500">
           {isOwner ? 'Criada por você' : `Criada por ${room.createdBy.username}`}
         </div>
-        
+
         <div className="flex space-x-2">
           {room.status === 0 && !isParticipant && room.canJoin && (
             <Button
@@ -195,17 +199,26 @@ export function RoomCard({ room, onJoin, onLeave, onManageMovies, currentUserId 
             <>
               <Button
                 size="sm"
-                className="bg-green-600 hover:bg-green-700"
+                onClick={() => onPlayGame(room.id)}
+                style={{
+                  backgroundColor: 'var(--secondary)',
+                  borderColor: 'var(--raisin-black)'
+                }}
+                className="hover:opacity-90 text-white"
               >
-                Jogar
+                🎮 Jogar
               </Button>
+
               <Button
                 size="sm"
-                variant="outline"
                 onClick={() => onManageMovies(room.id)}
-                className="border-blue-600 text-blue-400 hover:bg-blue-700 hover:text-white"
+                style={{
+                  backgroundColor: 'var(--primary)',
+                  borderColor: 'var(--dark-purple)',
+                }}
+                className="hover:opacity-90 text-white"
               >
-                Filmes
+                🎬 Filmes
               </Button>
             </>
           )}
@@ -213,8 +226,11 @@ export function RoomCard({ room, onJoin, onLeave, onManageMovies, currentUserId 
           {isOwner && (
             <Button
               size="sm"
-              variant="outline"
-              className="border-gray-600 text-gray-300 hover:bg-gray-700"
+              style={{
+                backgroundColor: 'var(--raisin-black-fraco)',
+                borderColor: 'var(--raisin-black-fraco)',
+              }}
+              className=" text-gray-300 hover:bg-gray-700"
             >
               Gerenciar
             </Button>

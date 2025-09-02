@@ -14,7 +14,7 @@ interface MovieCardProps {
 export function MovieCard({ movie, onUploadScene, onViewDetails, currentUserId }: MovieCardProps) {
   const isOwner = movie.submittedBy.id === currentUserId;
   const progress = (movie.scenes.length / 10) * 100;
-  
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('pt-BR', {
       day: '2-digit',
@@ -66,10 +66,9 @@ export function MovieCard({ movie, onUploadScene, onViewDetails, currentUserId }
             <span className="text-white">{movie.scenes.length}/10</span>
           </div>
           <div className="w-full bg-slate-700 rounded-full h-2">
-            <div 
-              className={`h-2 rounded-full transition-all duration-300 ${
-                movie.hasAllScenes ? 'bg-green-600' : 'bg-red-600'
-              }`}
+            <div
+              className={`h-2 rounded-full transition-all duration-300 ${movie.hasAllScenes ? 'bg-green-600' : 'bg-red-600'
+                }`}
               style={{ width: `${progress}%` }}
             ></div>
           </div>
@@ -124,46 +123,50 @@ export function MovieCard({ movie, onUploadScene, onViewDetails, currentUserId }
             <span className="text-gray-400">Por:</span>
             <span className="text-white ml-1">{movie.submittedBy.username}</span>
           </div>
+          <div>
+            <span className="text-gray-400">ID:</span>
+            <span className="text-white ml-1">{movie.id}</span>
+          </div>
         </div>
       </CardContent>
 
-      <CardFooter className="flex justify-between items-center">
-        <div className="text-xs text-gray-500">
-          ID: {movie.id}
-        </div>
-        
-        <div className="flex space-x-2">
-          {isOwner && !movie.hasAllScenes && (
-            <Button
-              size="sm"
-              onClick={() => onUploadScene(movie)}
-              className="bg-red-600 hover:bg-red-700 flex items-center space-x-1"
-            >
-              <span>📸</span>
-              <span>Enviar Cena {movie.scenes.length + 1}</span>
-            </Button>
-          )}
+      <CardFooter className="flex flex-col space-y-2">
+        {isOwner && !movie.hasAllScenes && (
+          <Button
+            size="sm"
+            onClick={() => onUploadScene(movie)}
+            style={{
+              backgroundColor: 'var(--secondary)'
+            }}
+            className="hover:opacity-90 text-white flex items-center justify-center space-x-1 w-full"
+          >
+            <span>📸</span>
+            <span>Enviar Cena {movie.scenes.length + 1}</span>
+          </Button>
+        )}
 
-          {movie.hasAllScenes && (
-            <Button
-              size="sm"
-              variant="outline"
-              className="border-green-600 text-green-400 hover:bg-green-700 hover:text-white flex items-center space-x-1"
-            >
-              <span>✅</span>
-              <span>Completo</span>
-            </Button>
-          )}
-
+        {movie.hasAllScenes && (
           <Button
             size="sm"
             variant="outline"
-            onClick={() => onViewDetails(movie)}
-            className="border-blue-600 text-blue-400 hover:bg-blue-700 hover:text-white"
+            className="border-green-600 text-green-400 hover:bg-green-700 hover:text-white flex items-center justify-center space-x-1 w-full"
           >
-            {isOwner ? '🎬 Gerenciar Cenas' : '👁️ Ver Cenas'}
+            <span>✅</span>
+            <span>Completo</span>
           </Button>
-        </div>
+        )}
+
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => onViewDetails(movie)}
+          style={{
+              backgroundColor: 'var(--info)'
+          }}
+          className="text-white hover:opacity-90 w-full"
+        >
+          {isOwner ? '🎬 Gerenciar Cenas' : '👁️ Ver Cenas'}
+        </Button>
       </CardFooter>
     </Card>
   );

@@ -67,6 +67,11 @@ export function LoginForm() {
             value={formData.password}
             onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
             className="bg-slate-800 border-slate-700 text-white placeholder-gray-400 pr-12"
+            style={{
+              WebkitTextSecurity: showPassword ? 'none' : 'disc',
+              fontFamily: 'inherit'
+            }}
+            autoComplete="current-password"
             required
           />
           <button

@@ -296,7 +296,6 @@ export default function RoomMoviesPage() {
     }
   };
 
-  // Como agora só carregamos os filmes do usuário, todos são "userMovies"
   const userMovies = Array.isArray(movies) ? movies : [];
   const canSubmitMore = room ? userMovies.length < room.moviesPerPlayer : false;
 
@@ -316,7 +315,6 @@ export default function RoomMoviesPage() {
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-slate-900">
-        {/* Header */}
         <header className="bg-slate-800 border-b border-slate-700">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
@@ -324,7 +322,7 @@ export default function RoomMoviesPage() {
                 <Button
                   onClick={() => router.back()}
                   variant="outline"
-                  className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                  className="border-blue-600 text-blue-400 hover:bg-blue-700 hover:text-white"
                   size="sm"
                 >
                   ← Voltar
@@ -337,23 +335,13 @@ export default function RoomMoviesPage() {
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                {canSubmitMore && (
-                  <Button
-                    onClick={() => setIsSubmitModalOpen(true)}
-                    className="bg-red-600 hover:bg-red-700"
-                    size="sm"
-                  >
-                    Submeter Filme
-                  </Button>
-                )}
+
               </div>
             </div>
           </div>
         </header>
 
-        {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Room Info */}
           {room && (
             <Card className="bg-slate-800 border-slate-700 mb-8">
               <CardContent className="p-6">
@@ -379,7 +367,6 @@ export default function RoomMoviesPage() {
             </Card>
           )}
 
-          {/* API Message */}
           {apiMessage && (
             <Card className="bg-blue-900/20 border-blue-700">
               <CardContent className="p-4">
@@ -388,16 +375,15 @@ export default function RoomMoviesPage() {
             </Card>
           )}
 
-          {/* User Movies */}
-          <div className="space-y-6">
+          <div className="space-y-6 mt-8">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold text-white">Meus Filmes</h2>
               {canSubmitMore && (
                 <Button
                   onClick={() => setIsSubmitModalOpen(true)}
-                  className="bg-red-600 hover:bg-red-700"
+                  className="bg-red-600 hover:bg-red-700 text-white font-medium"
                 >
-                  Submeter Filme
+                  🎬 Submeter Filme
                 </Button>
               )}
             </div>
@@ -409,9 +395,9 @@ export default function RoomMoviesPage() {
                   {canSubmitMore && (
                     <Button
                       onClick={() => setIsSubmitModalOpen(true)}
-                      className="bg-red-600 hover:bg-red-700"
+                      className="bg-red-600 hover:bg-red-700 text-white font-medium px-6 py-3"
                     >
-                      Submeter Primeiro Filme
+                      🎬 Submeter Primeiro Filme
                     </Button>
                   )}
                 </CardContent>

@@ -3,15 +3,9 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { CreateRoomData } from '@/types/game';
 
-interface CreateRoomData {
-  name: string;
-  description: string;
-  maxPlayers: number;
-  moviesPerPlayer: number;
-  scenesPerMovie: number;
-  isPrivate: boolean;
-}
+
 
 interface CreateRoomModalProps {
   isOpen: boolean;
@@ -26,15 +20,15 @@ export function CreateRoomModal({ isOpen, onClose, onSubmit }: CreateRoomModalPr
     maxPlayers: 4,
     moviesPerPlayer: 4,
     scenesPerMovie: 10,
-    isPrivate: false
+    isPrivate: false,
+    type: 0 // 0 = Online, 1 = Offline
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validação básica
+
     const newErrors: Record<string, string> = {};
     if (!formData.name.trim()) newErrors.name = 'Nome é obrigatório';
     if (!formData.description.trim()) newErrors.description = 'Descrição é obrigatória';
@@ -47,14 +41,14 @@ export function CreateRoomModal({ isOpen, onClose, onSubmit }: CreateRoomModalPr
 
     if (Object.keys(newErrors).length === 0) {
       onSubmit(formData);
-      // Reset form
       setFormData({
         name: '',
         description: '',
         maxPlayers: 4,
         moviesPerPlayer: 4,
         scenesPerMovie: 10,
-        isPrivate: false
+        isPrivate: false,
+        type: 0
       });
       setErrors({});
     }
@@ -84,10 +78,9 @@ export function CreateRoomModal({ isOpen, onClose, onSubmit }: CreateRoomModalPr
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Basic Info */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-white">Informações Básicas</h3>
-              
+
               <Input
                 label="Nome da Sala"
                 placeholder="Ex: Sala dos Amigos"
@@ -115,10 +108,9 @@ export function CreateRoomModal({ isOpen, onClose, onSubmit }: CreateRoomModalPr
               </div>
             </div>
 
-            {/* Game Settings */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-white">Configurações do Jogo</h3>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <Input
                   label="Máximo de Jogadores"
@@ -157,17 +149,69 @@ export function CreateRoomModal({ isOpen, onClose, onSubmit }: CreateRoomModalPr
                 />
               </div>
 
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3">
-                  <input
-                    type="checkbox"
-                    id="isPrivate"
-                    checked={formData.isPrivate}
-                    onChange={(e) => handleInputChange('isPrivate', e.target.checked)}
-                    className="w-4 h-4 text-red-600 bg-slate-700 border-slate-600 rounded focus:ring-red-500"
-                  />
-                  <label htmlFor="isPrivate" className="text-sm text-gray-300">
-                    Sala privada (apenas com código de acesso)
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-3">
+                    Tipo de Jogo
+                  </label>
+                  <div className="space-y-4">
+                    <div className={`flex items-start space-x-3 p-3 rounded-lg border transition-colors cursor-pointer ${formData.type === 0
+                        ? 'border-blue-500 bg-blue-500/10'
+                        : 'border-slate-600 hover:border-slate-500'
+                      }`}
+                      onClick={() => handleInputChange('type', 0)}>
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mt-1 ${formData.type === 0
+                          ? 'bg-blue-600 border-blue-600'
+                          : 'border-slate-600 bg-slate-700'
+                        }`}>
+                        {formData.type === 0 && (
+                          <div className="w-2 h-2 bg-white rounded-full"></div>
+                        )}
+                      </div>
+                      <label className="text-gray-300 cursor-pointer flex-1">
+                        <span className="font-medium text-blue-400">🌐 Online</span>
+                        <p className="text-xs text-gray-400 mt-1">Jogadores fazem palpites digitalmente através da plataforma</p>
+                      </label>
+                    </div>
+
+                    <div className={`flex items-start space-x-3 p-3 rounded-lg border transition-colors cursor-pointer ${formData.type === 1
+                        ? 'border-orange-500 bg-orange-500/10'
+                        : 'border-slate-600 hover:border-slate-500'
+                      }`}
+                      onClick={() => handleInputChange('type', 1)}>
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mt-1 ${formData.type === 1
+                          ? 'bg-orange-600 border-orange-600'
+                          : 'border-slate-600 bg-slate-700'
+                        }`}>
+                        {formData.type === 1 && (
+                          <div className="w-2 h-2 bg-white rounded-full"></div>
+                        )}
+                      </div>
+                      <label className="text-gray-300 cursor-pointer flex-1">
+                        <span className="font-medium text-orange-400">🏠 Presencial</span>
+                        <p className="text-xs text-gray-400 mt-1">Jogadores estão juntos fisicamente, dono controla pontuação</p>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  className={`flex items-center space-x-3 p-3 rounded-lg border transition-colors cursor-pointer ${formData.isPrivate
+                    ? 'border-red-500 bg-red-500/10'
+                    : 'border-slate-600 hover:border-slate-500'
+                    }`}
+                  onClick={() => handleInputChange('isPrivate', !formData.isPrivate)}
+                >
+                  <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${formData.isPrivate
+                    ? 'bg-red-600 border-red-600'
+                    : 'border-slate-600 bg-slate-700'
+                    }`}>
+                    {formData.isPrivate && (
+                      <span className="text-white text-xs font-bold">✓</span>
+                    )}
+                  </div>
+                  <label className="text-sm text-gray-300 cursor-pointer flex-1">
+                    🔒 Sala privada (apenas com código de acesso)
                   </label>
                 </div>
               </div>

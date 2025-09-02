@@ -29,6 +29,7 @@ export interface Room {
   finishedAt: string | null;
   roomCode: string;
   isPrivate: boolean;
+  type: number; // 0 = Online, 1 = Offline
   createdBy: Player;
   players: RoomPlayer[];
   currentPlayerCount: number;
@@ -39,6 +40,16 @@ export interface LoginResponse {
   token: string;
   player: Player;
   expiresAt: string;
+}
+
+export interface CreateRoomData {
+  name: string;
+  description: string;
+  maxPlayers: number;
+  moviesPerPlayer: number;
+  scenesPerMovie: number;
+  isPrivate: boolean;
+  type: number; // 0 = Online, 1 = Offline
 }
 
 // Tipos para filmes e cenas
@@ -94,6 +105,67 @@ export interface DeleteSceneData {
 export interface ReorderScenesData {
   movieId: number;
   sceneOrders: { sceneId: number; newOrder: number }[];
+}
+
+// Sistema de Jogo
+export interface GameSession {
+  id: number;
+  roomId: number;
+  currentMovieId: number | null;
+  currentSceneIndex: number;
+  currentPlayerTurn: number;
+  status: 'waiting' | 'playing' | 'finished';
+  createdAt: string;
+  startedAt: string | null;
+  finishedAt: string | null;
+}
+
+export interface GameGuess {
+  id: number;
+  gameSessionId: number;
+  playerId: number;
+  movieId: number;
+  sceneIndex: number;
+  guess: string;
+  isCorrect: boolean;
+  isSkip: boolean;
+  submittedAt: string;
+}
+
+export interface GameScore {
+  playerId: number;
+  playerName: string;
+  correctGuesses: number;
+  totalGuesses: number;
+  points: number;
+}
+
+export interface GameState {
+  session: GameSession;
+  currentMovie: Movie | null;
+  currentScene: Scene | null;
+  playerGuesses: GameGuess[];
+  scores: GameScore[];
+  isMyTurn: boolean;
+  canGuess: boolean;
+  hasGuessedCurrentScene: boolean;
+}
+
+// Dados para submeter palpite
+export interface SubmitGuessData {
+  gameSessionId: number;
+  movieId: number;
+  sceneIndex: number;
+  guess: string;
+  isSkip: boolean;
+}
+
+// Dados para atribuir ponto (modo offline)
+export interface AssignPointData {
+  gameSessionId: number;
+  playerId: number;
+  movieId: number;
+  points: number;
 }
 
 export interface GameSettings {

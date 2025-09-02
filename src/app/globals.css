@@ -1,48 +1,42 @@
 @import "tailwindcss";
 
 :root {
-  --primary: #ef4444;        /* Vermelho principal */
-  --primary-dark: #dc2626;   /* Vermelho escuro */
-  --primary-light: #f87171;  /* Vermelho claro */
-
-  --amarelo-teste-fraco: #F99A0F;
-  --amarelo-teste: #F99A0F;
-
-  --laranja-teste-fraco: #100B27;
+  --vinho: #8C031C;
+  --amarelo-fraco: #F99A0F;
   --laranja-teste: #ED420C;
-
+  --outro-laranja: #F2360C;
   --raisin-black-fraco: #45353F;
-  --raisin-black: #352930;
 
+  --primary: #ef4444;        
+  --primary-dark: #dc2626;   
+  --primary-light: #f87171;
+
+  --secondary: #f97316;
+  --secondary-dark: #ea580c;
+  --secondary-light: #fb923c;
+
+  --raisin-black: #352930;
   --jet-fraco: #4E4A59;
   --jet: #3E3B47;
 
   --dark-purple-fraco: #1A1240;
   --dark-purple: #100B27;
   
-  --secondary: #f97316;      /* Laranja */
-  --secondary-dark: #ea580c;
-  --secondary-light: #fb923c;
+  --accent: #8b5cf6;
   
-  --accent: #8b5cf6;         /* Roxo para destaques */
-  
-  /* Cores de fundo */
   --background: #ffffff;
-  --background-dark: #0f172a;    /* Slate 900 */
-  --background-card: #1e293b;    /* Slate 800 */
+  --background-dark: #0f172a;
+  --background-card: #1e293b;
   
-  /* Cores de texto */
   --foreground: #171717;
-  --foreground-light: #64748b;   /* Slate 500 */
-  --foreground-muted: #94a3b8;   /* Slate 400 */
-  
-  /* Cores de estado */
+  --foreground-light: #64748b;
+  --foreground-muted: #94a3b8;
+
   --success: #10b981;
   --warning: #f59e0b;
   --error: #ef4444;
   --info: #3b82f6;
   
-  /* Bordas */
   --border: #e2e8f0;
   --border-dark: #334155;
   --background: #ffffff;
@@ -107,6 +101,17 @@ select {
   /* Remove iOS styling */
   -webkit-appearance: none;
   border-radius: 0;
+}
+
+/* Remove browser password reveal button */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
+input[type="password"]::-webkit-credentials-auto-fill-button,
+input[type="password"]::-webkit-strong-password-auto-fill-button {
+  display: none !important;
 }
 
 /* Focus styles for accessibility */

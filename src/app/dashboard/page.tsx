@@ -10,7 +10,7 @@ import { DropdownMenu, DropdownMenuItem } from '@/components/ui/DropdownMenu';
 import { RoomCard } from '@/components/game/RoomCard';
 import { CreateRoomModal } from '@/components/game/CreateRoomModal';
 import { JoinRoomModal } from '@/components/game/JoinRoomModal';
-import { Room } from '@/types/game';
+import { Room, CreateRoomData } from '@/types/game';
 import { apiRequest, API_CONFIG } from '@/lib/api';
 
 interface RoomStats {
@@ -40,26 +40,46 @@ export default function DashboardPage() {
       const token = localStorage.getItem('token');
 
       if (!token) {
+        console.error('❌ Token não encontrado no localStorage');
         throw new Error('Token não encontrado');
       }
 
       console.log('🏠 Carregando salas do usuário...');
+      console.log('🔑 Token:', token.substring(0, 20) + '...');
 
-      const roomsData = await apiRequest('/Rooms/my-rooms', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      // Primeiro tentar buscar todas as salas para testar a conexão
+      let roomsData;
+      try {
+        console.log('🔍 Tentando /Rooms/my-rooms...');
+        roomsData = await apiRequest('/Rooms/my-rooms', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      } catch (error) {
+        console.log('❌ Falhou /Rooms/my-rooms, tentando /Rooms...');
+        roomsData = await apiRequest('/Rooms', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      }
 
-      console.log('📋 Salas carregadas:', roomsData);
-      setRooms(roomsData);
+      console.log('📋 Salas carregadas - Tipo:', typeof roomsData);
+      console.log('📋 Salas carregadas - Dados:', roomsData);
+      console.log('📋 É array?', Array.isArray(roomsData));
+
+      // Verificar se roomsData é um array válido
+      const validRoomsData = Array.isArray(roomsData) ? roomsData : [];
+      console.log('✅ Dados válidos:', validRoomsData.length, 'salas');
+      setRooms(validRoomsData);
 
       // Calcular estatísticas
-      const totalRooms = roomsData.length;
-      const activeRooms = roomsData.filter((room: Room) => room.status === 1).length;
-      const completedRooms = roomsData.filter((room: Room) => room.status === 2).length;
+      const totalRooms = validRoomsData.length;
+      const activeRooms = validRoomsData.filter((room: Room) => room.status === 1).length;
+      const completedRooms = validRoomsData.filter((room: Room) => room.status === 2).length;
       const averagePlayersPerRoom = totalRooms > 0
-        ? roomsData.reduce((acc: number, room: Room) => acc + room.currentPlayerCount, 0) / totalRooms
+        ? validRoomsData.reduce((acc: number, room: Room) => acc + room.currentPlayerCount, 0) / totalRooms
         : 0;
 
       setStats({
@@ -69,8 +89,18 @@ export default function DashboardPage() {
         averagePlayersPerRoom: Math.round(averagePlayersPerRoom * 10) / 10
       });
 
+      console.log('📊 Estatísticas calculadas:', {
+        totalRooms,
+        activeRooms,
+        completedRooms,
+        averagePlayersPerRoom
+      });
+
     } catch (error) {
       console.error('❌ Erro ao carregar salas:', error);
+      console.error('❌ Tipo do erro:', typeof error);
+      console.error('❌ Mensagem:', error instanceof Error ? error.message : 'Erro desconhecido');
+
       // Em caso de erro, mostrar array vazio
       setRooms([]);
       setStats({
@@ -84,7 +114,7 @@ export default function DashboardPage() {
     }
   };
 
-  const handleCreateRoom = async (roomData: any) => {
+  const handleCreateRoom = async (roomData: CreateRoomData) => {
     try {
       const token = localStorage.getItem('token');
 
@@ -263,6 +293,10 @@ export default function DashboardPage() {
     router.push(`/room/${roomId}/movies`);
   };
 
+  const handlePlayGame = (roomId: number) => {
+    router.push(`/room/${roomId}/game`);
+  };
+
   if (isLoading) {
     return (
       <ProtectedRoute>
@@ -291,39 +325,56 @@ export default function DashboardPage() {
                 </span>
               </div>
               <div className="flex items-center space-x-2">
-                {/* Desktop: Botões separados */}
                 <div className="hidden md:flex items-center space-x-4">
+
                   <Button
                     onClick={() => setIsJoinModalOpen(true)}
                     variant="outline"
-                    className="border-green-600 text-green-400 hover:bg-green-700 hover:text-white"
+                    style={{
+                      backgroundColor: 'var(--secondary)'
+                    }}
+                    className="hover:opacity-90 text-white"
+
                     size="sm"
                   >
                     Entrar em Sala
                   </Button>
+
                   <Button
                     onClick={() => setIsCreateModalOpen(true)}
-                    className="bg-red-600 hover:bg-red-700"
+                    variant="outline"
+                    style={{
+                      backgroundColor: 'var(--laranja-teste)'
+                    }}
+                    className="hover:opacity-90 text-white"
                     size="sm"
                   >
                     Criar Sala
                   </Button>
+
                   <Button
                     onClick={loadRooms}
                     variant="outline"
-                    className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                    style={{
+                        backgroundColor: 'var(--info)'   
+                    }}
+                    className="hover:text-white"
                     size="sm"
                   >
-                    Atualizar
+                    🔄 Atualizar
                   </Button>
+
                   <Button
                     onClick={logout}
-                    variant="outline"
-                    className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                    style={{
+                      backgroundColor: 'var(--primary)'
+                    }}
+                    className="hover:text-white"
                     size="sm"
                   >
                     Sair
                   </Button>
+
                 </div>
 
                 {/* Mobile: Menu hambúrguer */}
@@ -374,9 +425,7 @@ export default function DashboardPage() {
           </div>
         </header>
 
-        {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Stats Cards */}
           {stats && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
               <Card className="bg-slate-800 border-slate-700">
@@ -414,7 +463,6 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {/* Rooms Section */}
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold text-white">Minhas Salas</h2>
@@ -441,6 +489,7 @@ export default function DashboardPage() {
                     onJoin={handleJoinRoom}
                     onLeave={handleLeaveRoom}
                     onManageMovies={handleManageMovies}
+                    onPlayGame={handlePlayGame}
                     currentUserId={user?.id || 0}
                   />
                 ))}
@@ -449,14 +498,12 @@ export default function DashboardPage() {
           </div>
         </main>
 
-        {/* Create Room Modal */}
         <CreateRoomModal
           isOpen={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
           onSubmit={handleCreateRoom}
         />
 
-        {/* Join Room Modal */}
         <JoinRoomModal
           isOpen={isJoinModalOpen}
           onClose={() => setIsJoinModalOpen(false)}

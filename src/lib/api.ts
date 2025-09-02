@@ -42,26 +42,28 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
     },
   };
 
+  const mergedOptions = {
+    ...defaultOptions,
+    ...options,
+    headers: {
+      ...defaultOptions.headers,
+      ...options.headers,
+    },
+  };
+
   try {
-    const response = await fetch(url, {
-      ...defaultOptions,
-      ...options,
-      headers: {
-        ...defaultOptions.headers,
-        ...options.headers,
-      },
-    });
+    const response = await fetch(url, mergedOptions);
 
     console.log('📡 API Response:', {
       status: response.status,
       statusText: response.statusText,
-      headers: Object.fromEntries(response.headers.entries())
+      url: response.url
     });
 
     if (!response.ok) {
       const errorText = await response.text();
       console.error('❌ API Error Response:', errorText);
-      throw new Error(`API Error: ${response.status} ${response.statusText} - ${errorText}`);
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
     const data = await response.json();
@@ -69,18 +71,7 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
     return data;
 
   } catch (error) {
-    console.error('🚨 API Request Failed:', {
-      url,
-      error: error.message,
-      type: error.name,
-      stack: error.stack
-    });
-
-    // Melhorar mensagem de erro para o usuário
-    if (error.message === 'Failed to fetch') {
-      throw new Error(`Não foi possível conectar com o servidor em ${API_CONFIG.baseURL}. Verifique se o backend está rodando.`);
-    }
-
+    console.error('❌ API Request Failed:', error);
     throw error;
   }
 }
