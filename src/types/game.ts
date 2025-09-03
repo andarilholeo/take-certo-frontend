@@ -189,7 +189,7 @@ export interface GameStats {
 export interface CreateGameData {
   title: string;
   description: string;
-  gameType: Game['gameType'];
+  gameType: number; // 0 = Online, 1 = Offline (matches backend RoomType enum)
   maxParticipants?: number;
   settings: Omit<GameSettings, 'categories'> & {
     categories: string[];
