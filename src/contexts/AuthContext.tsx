@@ -105,17 +105,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       console.log('📋 Resposta do registro:', response);
 
-      if (response.token && response.player) {
-        localStorage.setItem('token', response.token);
-        localStorage.setItem('userData', JSON.stringify(response.player));
-        setUser(response.player);
+      // Para registro, consideramos sucesso se não houve erro na requisição
+      // O backend pode retornar diferentes estruturas para registro vs login
+      console.log('✅ Registro realizado com sucesso');
+      return response; // Retornar a resposta para o componente
 
-        console.log('✅ Registro realizado com sucesso');
-        router.push('/dashboard');
-      } else {
-        console.error('❌ Estrutura de resposta inválida:', response);
-        throw new Error('Resposta inválida do servidor - token ou player não encontrado');
-      }
     } catch (error) {
       console.error('🚨 Erro no registro:', error);
       throw error;

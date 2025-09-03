@@ -41,7 +41,7 @@ export function LoginForm() {
       )}
 
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+        <label htmlFor="email" className="block text-sm font-medium text-white/90 mb-2">
           Email
         </label>
         <Input
@@ -50,13 +50,13 @@ export function LoginForm() {
           placeholder="seu@email.com"
           value={formData.email}
           onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-          className="bg-slate-800 border-slate-700 text-white placeholder-gray-400"
+          className="bg-white/10 border-white/20 text-white placeholder-white/50 backdrop-blur-sm"
           required
         />
       </div>
 
       <div>
-        <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+        <label htmlFor="password" className="block text-sm font-medium text-white/90 mb-2">
           Senha
         </label>
         <div className="relative">
@@ -66,7 +66,7 @@ export function LoginForm() {
             placeholder="••••••••"
             value={formData.password}
             onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-            className="bg-slate-800 border-slate-700 text-white placeholder-gray-400 pr-12"
+            className="bg-white/10 border-white/20 text-white placeholder-white/50 backdrop-blur-sm pr-12"
             style={{
               WebkitTextSecurity: showPassword ? 'none' : 'disc',
               fontFamily: 'inherit'
@@ -77,7 +77,7 @@ export function LoginForm() {
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/70 hover:text-white"
           >
             {showPassword ? '🙈' : '👁️'}
           </button>
@@ -85,7 +85,7 @@ export function LoginForm() {
       </div>
 
       <div className="text-right">
-        <Link href="/forgot-password" className="text-sm text-gray-400 hover:text-gray-300">
+        <Link href="/forgot-password" className="text-sm text-white/70 hover:text-white transition-colors">
           Esqueceu a senha?
         </Link>
       </div>
@@ -93,14 +93,14 @@ export function LoginForm() {
       <Button
         type="submit"
         disabled={isLoading}
-        className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3"
+        className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-4 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
       >
-        {isLoading ? 'Entrando...' : 'Entrar'}
+        {isLoading ? 'ENTRANDO...' : 'ENTRAR'}
       </Button>
 
       <div className="text-center">
-        <span className="text-gray-400">Não tem uma conta? </span>
-        <Link href="/register" className="text-red-500 hover:text-red-400 font-medium">
+        <span className="text-white/70">Não tem uma conta? </span>
+        <Link href="/register" className="text-red-400 hover:text-red-300 font-medium transition-colors">
           Criar conta
         </Link>
       </div>
