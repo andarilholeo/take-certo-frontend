@@ -19,9 +19,6 @@ const nextConfig = {
     scrollRestoration: true,
   },
   
-  // Configurações de build
-  swcMinify: true,
-  
   // Headers de segurança
   async headers() {
     return [

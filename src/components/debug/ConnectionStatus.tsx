@@ -13,31 +13,101 @@ export function ConnectionStatus() {
     setConnectionStatus('checking');
 
     try {
-      // Testar apenas o endpoint de login que sabemos que existe
       console.log(`🔍 Testando conectividade com backend...`);
+      console.log(`📍 Frontend rodando em: ${window.location.origin}`);
+      console.log(`🎯 Backend URL: ${API_CONFIG.baseURL}`);
 
-      const response = await fetch(`${API_CONFIG.baseURL}/auth/login`, {
+      // Primeiro: Testar OPTIONS (preflight) para verificar CORS
+      console.log(`🔍 Testando CORS preflight (OPTIONS)...`);
+      try {
+        const optionsResponse = await fetch(`${API_CONFIG.baseURL}/auth/login`, {
+          method: 'OPTIONS',
+          headers: {
+            'Origin': window.location.origin,
+            'Access-Control-Request-Method': 'POST',
+            'Access-Control-Request-Headers': 'Content-Type',
+          },
+        });
+
+        console.log(`📡 OPTIONS Response:`, {
+          status: optionsResponse.status,
+          headers: Object.fromEntries(optionsResponse.headers.entries())
+        });
+
+        if (optionsResponse.ok) {
+          console.log(`✅ CORS preflight OK - Status: ${optionsResponse.status}`);
+        }
+      } catch (optionsError) {
+        console.log(`⚠️ OPTIONS request falhou:`, optionsError);
+      }
+
+      // Segundo: Testar GET simples
+      console.log(`🔍 Testando GET request...`);
+      let response;
+      try {
+        response = await fetch(`${API_CONFIG.baseURL}/health`, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+          },
+        });
+
+        console.log(`📡 GET Response:`, {
+          status: response.status,
+          headers: Object.fromEntries(response.headers.entries())
+        });
+
+        if (response.ok || response.status === 404) {
+          setConnectionStatus('connected');
+          setBackendInfo(`✅ Backend acessível via GET (Status: ${response.status})`);
+          console.log(`✅ Backend conectado via GET - Status: ${response.status}`);
+          return;
+        }
+      } catch (getError) {
+        console.log(`⚠️ GET request falhou:`, getError);
+      }
+
+      // Terceiro: Testar POST (o que realmente importa)
+      console.log(`🔍 Testando POST request...`);
+      response = await fetch(`${API_CONFIG.baseURL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Origin': window.location.origin,
         },
         body: JSON.stringify({ email: 'test@test.com', password: 'test' })
       });
 
-      // Se chegou até aqui, o backend está respondendo (mesmo que seja erro 400/401)
+      console.log(`📡 POST Response:`, {
+        status: response.status,
+        headers: Object.fromEntries(response.headers.entries())
+      });
+
+      // Se chegou até aqui, o CORS está funcionando
       if (response.status === 400 || response.status === 401 || response.status === 200) {
         setConnectionStatus('connected');
-        setBackendInfo(`Backend respondendo (Status: ${response.status})`);
-        console.log(`✅ Backend conectado - Status: ${response.status}`);
+        setBackendInfo(`✅ CORS funcionando! Backend respondeu via POST (Status: ${response.status})`);
+        console.log(`✅ CORS OK! Backend conectado via POST - Status: ${response.status}`);
       } else {
         setConnectionStatus('disconnected');
-        setBackendInfo(`Status inesperado: ${response.status}`);
+        setBackendInfo(`⚠️ Status inesperado: ${response.status}`);
         console.log(`⚠️ Status inesperado: ${response.status}`);
       }
     } catch (error) {
-      console.error('❌ Erro na verificação:', error.message);
-      setConnectionStatus('disconnected');
-      setBackendInfo(null);
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      console.error('❌ Erro na verificação:', errorMessage);
+
+      // Detectar erro CORS específico
+      if (errorMessage.includes('Failed to fetch')) {
+        setConnectionStatus('disconnected');
+        setBackendInfo(`❌ Erro CORS: Verifique se app.UseCors("AllowFrontend") está configurado no backend`);
+      } else if (errorMessage.includes('CORS')) {
+        setConnectionStatus('disconnected');
+        setBackendInfo(`❌ Erro CORS: ${errorMessage}`);
+      } else {
+        setConnectionStatus('disconnected');
+        setBackendInfo(`❌ Erro: ${errorMessage}`);
+      }
     }
   };
 
@@ -139,14 +209,58 @@ export function ConnectionStatus() {
               <p>✅ <strong>Backend conectado</strong> - Você pode usar o sistema normalmente</p>
             ) : (
               <div>
-                <p>❌ <strong>Backend não encontrado</strong></p>
-                <p>Verifique se:</p>
-                <ul className="ml-4 space-y-1">
-                  <li>• O backend está rodando na porta 5134</li>
-                  <li>• A URL {API_CONFIG.baseURL} está correta</li>
-                  <li>• Não há problemas de CORS</li>
-                  <li>• O endpoint /auth/login existe e retorna a estrutura esperada</li>
-                </ul>
+                <p>❌ <strong>Problema de conectividade</strong></p>
+
+                {backendInfo?.includes('CORS') ? (
+                  <div className="bg-red-900/20 border border-red-700 p-3 rounded mt-2">
+                    <p className="text-red-300 font-medium">🚫 Erro CORS Detectado</p>
+                    <p className="mt-1">⚠️ <strong>Importante:</strong> Este erro só acontece no navegador, não no Postman!</p>
+                    <p className="text-sm mt-2">O backend funciona, mas precisa configurar CORS para aceitar requests do frontend.</p>
+
+                    <div className="mt-3 p-2 bg-yellow-900/30 border border-yellow-600 rounded">
+                      <p className="text-yellow-300 font-medium text-xs">🔧 Verificar Pipeline do Backend:</p>
+                      <p className="text-xs mt-1">Certifique-se que o CORS está sendo aplicado no Program.cs:</p>
+                      <pre className="text-xs mt-1 bg-slate-800 p-2 rounded overflow-x-auto">
+{`// Depois de builder.Services.AddCors(...)
+app.UseCors("AllowFrontend");
+
+// OU para desenvolvimento:
+app.UseCors("AllowAll");`}
+                      </pre>
+                      <p className="text-xs mt-2 text-yellow-200">⚠️ O UseCors() deve vir ANTES de UseAuthorization()</p>
+                    </div>
+
+                    <details className="mt-2">
+                      <summary className="text-yellow-300 text-xs cursor-pointer">📋 Configuração detalhada para produção</summary>
+                      <ul className="ml-4 space-y-1 text-xs mt-2">
+                        <li>• Origem específica: <code className="bg-slate-800 px-1 rounded">http://localhost:3001</code></li>
+                        <li>• Métodos: GET, POST, PUT, DELETE, OPTIONS</li>
+                        <li>• Headers: Content-Type, Authorization</li>
+                        <li>• Suporte a preflight (OPTIONS)</li>
+                      </ul>
+                    </details>
+                  </div>
+                ) : (
+                  <div>
+                    <p>Verifique se:</p>
+                    <ul className="ml-4 space-y-1">
+                      <li>• O backend está rodando na porta 5134</li>
+                      <li>• A URL {API_CONFIG.baseURL} está correta</li>
+                      <li>• O endpoint /auth/login existe</li>
+                      <li>• Não há firewall bloqueando a conexão</li>
+                    </ul>
+                  </div>
+                )}
+
+                <div className="mt-3 p-2 bg-blue-900/20 border border-blue-600 rounded">
+                  <p className="text-blue-300 font-medium text-xs">ℹ️ Por que funciona no Postman mas não no navegador?</p>
+                  <ul className="text-xs mt-1 space-y-1">
+                    <li>• <strong>Postman:</strong> Não implementa políticas CORS</li>
+                    <li>• <strong>Navegador:</strong> Bloqueia requests entre origens diferentes</li>
+                    <li>• <strong>Preflight:</strong> Navegador envia OPTIONS antes de POST com JSON</li>
+                  </ul>
+                </div>
+
                 <p className="text-blue-400 mt-2">
                   💡 Use o comando: <code className="bg-slate-800 px-1 rounded">npm run check-backend</code>
                 </p>

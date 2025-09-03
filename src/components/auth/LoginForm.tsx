@@ -70,7 +70,7 @@ export function LoginForm() {
             style={{
               WebkitTextSecurity: showPassword ? 'none' : 'disc',
               fontFamily: 'inherit'
-            }}
+            } as React.CSSProperties}
             autoComplete="current-password"
             required
           />
