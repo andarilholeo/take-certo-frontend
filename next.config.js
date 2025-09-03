@@ -1,8 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Otimizações para produção
-  output: 'standalone',
-  
   // Configuração de imagens
   images: {
     domains: [
@@ -12,11 +9,15 @@ const nextConfig = {
     ],
     formats: ['image/webp', 'image/avif'],
   },
-  
-  // Otimizações experimentais
+
+  // Otimizações experimentais (removendo optimizeCss que pode causar problemas com critters)
   experimental: {
-    optimizeCss: true,
     scrollRestoration: true,
+  },
+
+  // Configuração para evitar problemas com critters
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
   },
   
   // Headers de segurança
