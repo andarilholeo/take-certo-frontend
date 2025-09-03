@@ -7,7 +7,7 @@ import { API_CONFIG } from '@/lib/api';
 
 export function ConnectionStatus() {
   const [connectionStatus, setConnectionStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking');
-  const [backendInfo, setBackendInfo] = useState<any>(null);
+  const [backendInfo, setBackendInfo] = useState<string | null>(null);
 
   const checkConnection = async () => {
     setConnectionStatus('checking');

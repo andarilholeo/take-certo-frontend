@@ -46,7 +46,7 @@ export function SubmitMovieModal({ isOpen, onClose, onSubmit, isLoading = false 
     }
   };
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: string, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));

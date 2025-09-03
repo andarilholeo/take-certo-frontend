@@ -159,7 +159,7 @@ export default function RoomMoviesPage() {
 
       // Log do FormData para debug
       console.log('📋 FormData criado:');
-      for (let [key, value] of formData.entries()) {
+      for (const [key, value] of formData.entries()) {
         console.log(`  ${key}:`, value);
       }
 
