@@ -29,13 +29,6 @@ export const API_CONFIG = {
 export async function apiRequest(endpoint: string, options: RequestInit = {}) {
   const url = `${API_CONFIG.baseURL}${endpoint}`;
 
-  console.log('🔗 API Request:', {
-    url,
-    method: options.method || 'GET',
-    headers: options.headers,
-    body: options.body
-  });
-
   const defaultOptions: RequestInit = {
     headers: {
       'Content-Type': 'application/json',
@@ -53,12 +46,6 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
 
   try {
     const response = await fetch(url, mergedOptions);
-
-    console.log('📡 API Response:', {
-      status: response.status,
-      statusText: response.statusText,
-      url: response.url
-    });
 
     if (!response.ok) {
       const errorText = await response.text();

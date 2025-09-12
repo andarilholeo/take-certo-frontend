@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { SuccessModal } from '@/components/ui/SuccessModal';
+import { AnimatedSuccessModal } from '@/components/ui/AnimatedSuccessModal';
 import { useAuth } from '@/contexts/AuthContext';
 
 export function RegisterForm() {
@@ -18,25 +18,23 @@ export function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const { register, isLoading } = useAuth();
   const router = useRouter();
 
-  // UseEffect para mostrar modal quando registro for bem-sucedido
   useEffect(() => {
-    if (registrationSuccess) {
-      console.log('🎯 useEffect detectou registro bem-sucedido, mostrando modal...');
+    const shouldShowModal = localStorage.getItem('showRegistrationSuccessModal');
+    
+    if (shouldShowModal === 'true') {
       setShowSuccessModal(true);
+      localStorage.removeItem('showRegistrationSuccessModal');
     }
-  }, [registrationSuccess]);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
     try {
-      console.log('🚀 Iniciando handleSubmit...');
-
       if (!formData.username || !formData.email || !formData.password) {
         throw new Error('Todos os campos são obrigatórios');
       }
@@ -49,27 +47,25 @@ export function RegisterForm() {
         throw new Error('A senha deve ter pelo menos 6 caracteres');
       }
 
-      console.log('✅ Validações passaram. Iniciando processo de registro...');
-      console.log('📝 Dados do formulário:', { username: formData.username, email: formData.email });
-
       const result = await register(formData.username, formData.email, formData.password);
 
-      console.log('📋 Resultado do registro:', result);
-      console.log('🎉 Registro bem-sucedido! Ativando flag de sucesso...');
-
-      setRegistrationSuccess(true);
-      console.log('📱 Flag de sucesso ativada. registrationSuccess:', true);
+      if (result.success) {
+        localStorage.setItem('showRegistrationSuccessModal', 'true');
+        setTimeout(() => {
+          setShowSuccessModal(true);
+        }, 100);
+      } else {
+        throw new Error(result.message || 'Erro ao criar conta');
+      }
 
     } catch (error) {
-      console.error('❌ Erro capturado no handleSubmit:', error);
       setError(error instanceof Error ? error.message : 'Erro ao criar conta');
     }
   };
 
   const handleSuccessModalClose = () => {
-    console.log('🔄 Fechando modal e redirecionando para login...');
     setShowSuccessModal(false);
-    setRegistrationSuccess(false);
+    localStorage.removeItem('showRegistrationSuccessModal');
     router.push('/login');
   };
 
@@ -170,32 +166,14 @@ export function RegisterForm() {
         >
           {isLoading ? 'CRIANDO CONTA...' : 'CRIAR CONTA'}
         </Button>
-
-
       </form>
 
-      {/* Modal de Sucesso */}
-      <SuccessModal
+      <AnimatedSuccessModal
         isOpen={showSuccessModal}
         onClose={handleSuccessModalClose}
         title="Conta criada com sucesso!"
         message="Sua conta foi criada com sucesso. Agora você pode fazer login e começar a jogar!"
         buttonText="Ir para Login"
-        icon={
-          <svg
-            className="h-8 w-8 text-green-600"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-        }
       />
     </>
   );

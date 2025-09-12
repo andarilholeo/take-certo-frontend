@@ -25,13 +25,12 @@ export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
   }
 
   if (!isAuthenticated) {
-    return null; // Será redirecionado pelo useEffect
+    return null;
   }
 
   return <>{children}</>;
 }
 
-// Hook para verificar autenticação em páginas
 export function useRequireAuth() {
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();

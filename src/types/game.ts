@@ -36,7 +36,23 @@ export interface Room {
   canJoin: boolean;
 }
 
+// Estrutura padrão de resposta da API
+export interface ApiResponse<T = unknown> {
+  success: boolean;
+  statusCode: number;
+  message: string;
+  data?: T;
+  timestamp: string;
+  requestId: string;
+}
+
 export interface LoginResponse {
+  token: string;
+  player: Player;
+  expiresAt: string;
+}
+
+export interface RegisterResponse {
   token: string;
   player: Player;
   expiresAt: string;
